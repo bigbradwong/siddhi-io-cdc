@@ -1,0 +1,18 @@
+Index: component/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- component/pom.xml	(date 1544463001000)
++++ component/pom.xml	(date 1553437258346)
+@@ -516,7 +516,9 @@
+                         <Private-Package>
+                             com.github.shyiko.*,
+                             io.debezium.*,
+-                            org.apache.kafka.connect*
++                            org.apache.kafka.connect*,
++                            org.apache.kafka.common*,
++                            org.apache.kafka.clients*
+                         </Private-Package>
+                         <Import-Package>
+                             org.wso2.siddhi.*; version="${siddhi.import.version.range}"
