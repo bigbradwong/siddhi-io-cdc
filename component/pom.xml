@@ -518,7 +518,8 @@
                             io.debezium.*,
                             org.apache.kafka.connect*,
                             org.apache.kafka.common*,
-                            org.apache.kafka.clients*
+                            org.apache.kafka.clients*,
+                            org.yaml.snakeyaml*
                         </Private-Package>
                         <Import-Package>
                             org.wso2.siddhi.*; version="${siddhi.import.version.range}"

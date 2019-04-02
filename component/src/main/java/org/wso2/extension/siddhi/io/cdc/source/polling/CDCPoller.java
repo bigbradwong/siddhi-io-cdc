@@ -37,12 +37,7 @@ import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -226,7 +221,7 @@ public class CDCPoller implements Runnable {
                         throw new CDCPollingModeException(SELECT_QUERY_CONFIG_FILE
                                 + " is not found in the classpath. Current mode: " + CDCSourceConstants.MODE_POLLING);
                     }
-                    queryConfiguration = (QueryConfiguration) yaml.load(inputStream);
+                    queryConfiguration = yaml.loadAs(inputStream, QueryConfiguration.class);
                 } finally {
                     if (inputStream != null) {
                         try {
@@ -282,6 +277,8 @@ public class CDCPoller implements Runnable {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
 
+        int pollingColumnType = -1;
+
         try {
             //If lastReadPollingColumnValue is null, assign it with last record of the table.
             if (lastReadPollingColumnValue == null) {
@@ -289,6 +286,9 @@ public class CDCPoller implements Runnable {
                 statement = connection.prepareStatement(selectQuery);
                 resultSet = statement.executeQuery();
                 if (resultSet.next()) {
+                    ResultSetMetaData metadata1 = resultSet.getMetaData();
+                    pollingColumnType = metadata1.getColumnType(1);
+
                     lastReadPollingColumnValue = resultSet.getString(1);
                 }
                 //if the table is empty, set last offset to a negative value.
@@ -314,7 +314,7 @@ public class CDCPoller implements Runnable {
                     }
                 }
                 try {
-                    statement.setString(1, lastReadPollingColumnValue);
+                    statement.setObject(1, lastReadPollingColumnValue, pollingColumnType);
                     resultSet = statement.executeQuery();
                     metadata = resultSet.getMetaData();
                     while (resultSet.next()) {
