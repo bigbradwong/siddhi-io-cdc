@@ -66,7 +66,8 @@ public class CDCPoller implements Runnable {
     private String password;
     private String driverClassName;
     private HikariDataSource dataSource;
-    private String lastReadPollingColumnValue;
+    private Object lastReadPollingColumnValue;
+    private int pollingColumnType;
     private SourceEventListener sourceEventListener;
     private String pollingColumn;
     private String datasourceName;
@@ -167,12 +168,20 @@ public class CDCPoller implements Runnable {
         return isLocalDataSource;
     }
 
-    public String getLastReadPollingColumnValue() {
+    public Object getLastReadPollingColumnValue() {
         return lastReadPollingColumnValue;
     }
 
-    public void setLastReadPollingColumnValue(String lastReadPollingColumnValue) {
+    public void setLastReadPollingColumnValue(Object lastReadPollingColumnValue) {
         this.lastReadPollingColumnValue = lastReadPollingColumnValue;
+    }
+
+    public int getPollingColumnType() {
+        return pollingColumnType;
+    }
+
+    public void setPollingColumnType(int pollingColumnType) {
+        this.pollingColumnType = pollingColumnType;
     }
 
     private Connection getConnection() {
@@ -277,8 +286,6 @@ public class CDCPoller implements Runnable {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
 
-        int pollingColumnType = -1;
-
         try {
             //If lastReadPollingColumnValue is null, assign it with last record of the table.
             if (lastReadPollingColumnValue == null) {
@@ -289,11 +296,12 @@ public class CDCPoller implements Runnable {
                     ResultSetMetaData metadata1 = resultSet.getMetaData();
                     pollingColumnType = metadata1.getColumnType(1);
 
-                    lastReadPollingColumnValue = resultSet.getString(1);
+                    lastReadPollingColumnValue = resultSet.getObject(1);
                 }
                 //if the table is empty, set last offset to a negative value.
                 if (lastReadPollingColumnValue == null) {
                     lastReadPollingColumnValue = "-1";
+                    pollingColumnType = Types.VARCHAR;
                 }
             }
 
@@ -324,7 +332,8 @@ public class CDCPoller implements Runnable {
                             Object value = resultSet.getObject(key);
                             detailsMap.put(key.toLowerCase(Locale.ENGLISH), value);
                         }
-                        lastReadPollingColumnValue = resultSet.getString(pollingColumn);
+                        lastReadPollingColumnValue = resultSet.getObject(pollingColumn);
+
                         handleEvent(detailsMap);
                     }
                 } catch (SQLException ex) {
