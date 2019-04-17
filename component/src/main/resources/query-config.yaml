@@ -7,6 +7,8 @@ databases:
     selectQuery: SELECT {{COLUMN_LIST}} FROM {{TABLE_NAME}} {{CONDITION}}
   - name: "H2"
     selectQuery: SELECT {{COLUMN_LIST}} FROM {{TABLE_NAME}} {{CONDITION}}
+  - name: "HDB"
+    selectQuery: SELECT {{COLUMN_LIST}} FROM {{TABLE_NAME}} {{CONDITION}}
   - name: "Microsoft SQL Server"
     selectQuery: SELECT {{COLUMN_LIST}} FROM {{TABLE_NAME}} {{CONDITION}}
     

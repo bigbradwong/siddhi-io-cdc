@@ -485,6 +485,7 @@ public class CDCSource extends Source {
         switch (mode) {
             case CDCSourceConstants.MODE_POLLING:
                 currentState.put("last.offset", cdcPoller.getLastReadPollingColumnValue());
+                currentState.put("offset.type", cdcPoller.getPollingColumnType());
                 break;
             case CDCSourceConstants.MODE_LISTENING:
                 currentState.put(CDCSourceConstants.CACHE_OBJECT, offsetData);
@@ -500,7 +501,9 @@ public class CDCSource extends Source {
         switch (mode) {
             case CDCSourceConstants.MODE_POLLING:
                 Object lastOffsetObj = map.get("last.offset");
-                cdcPoller.setLastReadPollingColumnValue((String) lastOffsetObj);
+                int offsetType = (int)map.get("offset.type");
+                cdcPoller.setLastReadPollingColumnValue(lastOffsetObj);
+                cdcPoller.setPollingColumnType(offsetType);
                 break;
             case CDCSourceConstants.MODE_LISTENING:
                 Object cacheObj = map.get(CDCSourceConstants.CACHE_OBJECT);

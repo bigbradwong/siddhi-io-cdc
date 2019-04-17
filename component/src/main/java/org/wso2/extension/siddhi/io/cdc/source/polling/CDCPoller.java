@@ -305,7 +305,7 @@ public class CDCPoller implements Runnable {
                 }
             }
 
-            selectQuery = getSelectQuery("*", "WHERE " + pollingColumn + " > ?");
+            selectQuery = getSelectQuery(pollingColumn + " , *", "WHERE " + pollingColumn + " > ? limit 100000");
             statement = connection.prepareStatement(selectQuery);
 
             while (true) {
@@ -348,6 +348,7 @@ public class CDCPoller implements Runnable {
                 }
             }
         } catch (SQLException ex) {
+            log.error(ex);
             throw new CDCPollingModeException("Error in polling for changes on " + tableName + ". Current mode: " +
                     CDCSourceConstants.MODE_POLLING, ex);
         } finally {
